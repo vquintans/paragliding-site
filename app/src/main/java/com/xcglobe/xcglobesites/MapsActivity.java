@@ -1,12 +1,15 @@
 package com.xcglobe.xcglobesites;
 
 import android.content.Context;
+import android.content.Intent;
 import android.location.Location;
 import android.location.LocationManager;
+import android.net.Uri;
 import android.os.AsyncTask;
 import android.os.Bundle;
-import android.support.v4.app.FragmentActivity;
+import android.support.v7.app.ActionBarActivity;
 import android.util.Log;
+import android.view.Menu;
 
 import com.google.android.gms.maps.CameraUpdateFactory;
 import com.google.android.gms.maps.GoogleMap;
@@ -23,12 +26,14 @@ import org.json.JSONArray;
 import org.json.JSONObject;
 
 import java.io.InputStream;
+import java.util.HashMap;
 
-public class MapsActivity extends FragmentActivity implements OnMapReadyCallback {
+public class MapsActivity extends ActionBarActivity implements OnMapReadyCallback {
 
     private GoogleMap mMap;
     private JSONArray data;
     private Takeoff[] sites;
+    private HashMap<String, Takeoff> markers;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -38,6 +43,14 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
         SupportMapFragment mapFragment = (SupportMapFragment) getSupportFragmentManager()
                 .findFragmentById(R.id.map);
         mapFragment.getMapAsync(this);
+
+        markers = new HashMap<>();
+
+    }
+
+    @Override
+    public boolean onCreateOptionsMenu(Menu menu) {
+        return true;
     }
 
 
@@ -63,6 +76,13 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
                 fetchData(bounds);
             }
         });
+        mMap.setOnInfoWindowClickListener(new GoogleMap.OnInfoWindowClickListener() {
+            @Override
+            public void onInfoWindowClick(Marker marker) {
+                Intent browserIntent = new Intent(Intent.ACTION_VIEW, Uri.parse("http://xcglobe.com/olc/index.php/catalog/#sa&flights&" + markers.get(marker.getId()).id + "&&&&site_latest"));
+                startActivity(browserIntent);
+            }
+        });
 
         zoomToMyPos();
 
@@ -70,10 +90,10 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
     }
 
     private void fetchData(LatLngBounds bounds) {
-        mMap.clear();
+        //mMap.clear();
         if(sites != null) {
             for (Takeoff t : sites) {
-                if(t != null) {
+                if(t != null && !t.drawn) {
                     if (bounds.contains(t.toPoint())) {
                         addMarker(t);
                     }
@@ -89,9 +109,11 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
         marker.icon(BitmapDescriptorFactory.fromResource(R.drawable.dot));
 
         // adding marker
+        t.drawn = true;
         Marker m = mMap.addMarker(marker);
         m.setTitle(t.name);
         m.setSnippet(t.flights + " flights");
+        markers.put(m.getId(), t);
     }
 
     private void zoomToMyPos() {

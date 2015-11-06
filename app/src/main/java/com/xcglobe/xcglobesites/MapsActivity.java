@@ -5,6 +5,7 @@ import android.content.Context;
 import android.content.DialogInterface;
 import android.content.Intent;
 import android.content.SharedPreferences;
+import android.graphics.Color;
 import android.location.Location;
 import android.location.LocationManager;
 import android.net.Uri;
@@ -26,6 +27,8 @@ import com.google.android.gms.maps.model.LatLng;
 import com.google.android.gms.maps.model.LatLngBounds;
 import com.google.android.gms.maps.model.Marker;
 import com.google.android.gms.maps.model.MarkerOptions;
+import com.google.android.gms.maps.model.Polygon;
+import com.google.android.gms.maps.model.PolygonOptions;
 
 import org.json.JSONArray;
 import org.json.JSONObject;
@@ -183,38 +186,77 @@ public class MapsActivity extends ActionBarActivity implements OnMapReadyCallbac
 
     private void loadData() {
         new LoadDataTask().execute();
+        drawAirspace();
     }
 
     class LoadDataTask extends AsyncTask<Void, Void, Void> {
 
         @Override
         protected Void doInBackground(Void... params) {
-            try {
-                data = loadJSONFromAsset();
-                sites = new Takeoff[data.length()];
-                for(int i = 0; i<data.length();i++) {
-                    JSONObject p = data.getJSONObject(i);
-
-                    Takeoff t = new Takeoff();
-                    t.name = p.getString("name");
-                    t.lat = p.getDouble("lat");
-                    t.lon = p.getDouble("lon");
-                    t.flights = p.getInt("flights");
-                    t.id = p.getString("id");
-
-                    sites[i] = t;
-                }
-            } catch (Exception e) {
-                Log.e("XCGlobe","data",e);
-            }
+            drawTakeoffs();
             return null;
         }
     }
 
-    private JSONArray loadJSONFromAsset() {
+    private void drawTakeoffs() {
+        try {
+            data = loadJSONFromAsset("xcg.json");
+            sites = new Takeoff[data.length()];
+            for(int i = 0; i<data.length();i++) {
+                JSONObject p = data.getJSONObject(i);
+
+                Takeoff t = new Takeoff();
+                t.name = p.getString("name");
+                t.lat = p.getDouble("lat");
+                t.lon = p.getDouble("lon");
+                t.flights = p.getInt("flights");
+                t.id = p.getString("id");
+
+                sites[i] = t;
+            }
+        } catch (Exception e) {
+            Log.e("XCGlobe","data",e);
+        }
+    }
+
+    private void drawAirspace() {
+        try {
+            JSONArray a = loadJSONFromAsset("airspace.json");
+            for(int i = 0; i<a.length();i++) {
+                JSONObject p = a.getJSONObject(i);
+
+                addPolygon(p.getJSONArray("points"),p.getInt("alt"));
+            }
+        } catch (Exception e) {
+            Log.e("XCGlobe","airspace",e);
+        }
+    }
+
+    private void addPolygon(JSONArray pts,int alt) {
+        PolygonOptions opts = new PolygonOptions().strokeColor(Color.RED);
+        if(alt == 0) {
+            opts.fillColor(Color.argb(40, 255, 0, 0));
+        } else {
+            opts.fillColor(Color.argb((4500-alt)/60,0,0,255));
+        }
+
+        try {
+            for(int i = 0;i<pts.length();i++) {
+                if(i%2 == 1) {
+                    opts.add(new LatLng(pts.getDouble(i-1),pts.getDouble(i)));
+                }
+            }
+        } catch (Exception e) {
+            Log.e("XCGlobe","addPolygon",e);
+        }
+
+        Polygon polygon = mMap.addPolygon(opts);
+    }
+
+    private JSONArray loadJSONFromAsset(String filename) {
         JSONArray json = new JSONArray();;
         try {
-            InputStream is = getAssets().open("xcg.json");
+            InputStream is = getAssets().open(filename);
             int size = is.available();
             byte[] buffer = new byte[size];
             is.read(buffer);

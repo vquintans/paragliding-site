@@ -4,6 +4,7 @@ import android.app.AlertDialog;
 import android.content.Context;
 import android.content.DialogInterface;
 import android.content.Intent;
+import android.content.SharedPreferences;
 import android.location.Location;
 import android.location.LocationManager;
 import android.net.Uri;
@@ -52,6 +53,18 @@ public class MapsActivity extends ActionBarActivity implements OnMapReadyCallbac
 
     }
 
+    public void save(String key, int val) {
+        SharedPreferences sharedPref = getPreferences(Context.MODE_PRIVATE);
+        SharedPreferences.Editor editor = sharedPref.edit();
+        editor.putInt(key, val);
+        editor.commit();
+    }
+
+    public int get(String key) {
+        SharedPreferences sharedPref = getPreferences(Context.MODE_PRIVATE);
+        return sharedPref.getInt(key, -1);
+    }
+
     @Override
     public boolean onCreateOptionsMenu(Menu menu) {
         MenuInflater inflater = getMenuInflater();
@@ -83,7 +96,10 @@ public class MapsActivity extends ActionBarActivity implements OnMapReadyCallbac
     public void onMapReady(GoogleMap googleMap) {
         mMap = googleMap;
 
-        mMap.setMapType(GoogleMap.MAP_TYPE_TERRAIN);
+        int maptype = get("maptype");
+        maptype = maptype == -1 ? GoogleMap.MAP_TYPE_TERRAIN : maptype;
+
+        mMap.setMapType(maptype);
         mMap.setMyLocationEnabled(true);
         mMap.setOnCameraChangeListener(new GoogleMap.OnCameraChangeListener() {
             @Override
@@ -251,6 +267,7 @@ public class MapsActivity extends ActionBarActivity implements OnMapReadyCallbac
                             default:
                                 mMap.setMapType(GoogleMap.MAP_TYPE_NORMAL);
                         }
+                        save("maptype", mMap.getMapType());
                         dialog.dismiss();
                     }
                 }

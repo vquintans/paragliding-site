@@ -54,7 +54,6 @@ public class MapsActivity extends ActionBarActivity implements OnMapReadyCallbac
         mapFragment.getMapAsync(this);
 
         markers = new HashMap<>();
-
     }
 
     @Override
@@ -100,8 +99,12 @@ public class MapsActivity extends ActionBarActivity implements OnMapReadyCallbac
     public void onMapReady(GoogleMap googleMap) {
         mMap = googleMap;
 
+        loadData();
+
         int maptype = Util.get(this, "maptype");
         maptype = maptype == -1 ? GoogleMap.MAP_TYPE_TERRAIN : maptype;
+
+        zoomTo(new LatLng(46.1221, 14.8153), 11, 0);
 
         mMap.setMapType(maptype);
         mMap.setMyLocationEnabled(true);
@@ -123,10 +126,7 @@ public class MapsActivity extends ActionBarActivity implements OnMapReadyCallbac
             }
         });
 
-        zoomTo(new LatLng(46.1221, 14.8153), 11, 0);
-        zoomToMyPos();
-
-        loadData();
+        //zoomToMyPos();
     }
 
     private void drawPointsInBounds() {
@@ -205,7 +205,8 @@ public class MapsActivity extends ActionBarActivity implements OnMapReadyCallbac
     }
 
     private void loadData() {
-        new LoadDataTask().execute();
+        //new LoadDataTask().execute();
+        drawTakeoffs();
         drawAirspace();
     }
 

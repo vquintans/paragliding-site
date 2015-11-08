@@ -3,4 +3,7 @@
     <item android:id="@+id/item1"
           android:icon="@android:drawable/ic_menu_mapmode"
           android:title="Change map mode" />
+
+    <item android:id="@+id/item2"
+        android:title="Sync with XCGlobe" />
 </menu>

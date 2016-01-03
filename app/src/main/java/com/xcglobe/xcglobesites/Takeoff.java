@@ -2,9 +2,6 @@ package com.xcglobe.xcglobesites;
 
 import com.google.android.gms.maps.model.LatLng;
 
-/**
- * Created by kafol on 5.11.2015.
- */
 public class Takeoff {
     public String id;
     public double lat;
@@ -12,6 +9,8 @@ public class Takeoff {
     public String name;
     public int flights;
     boolean drawn = false;
+
+    boolean n,e,w,s,ne,nw,se,sw;
 
     public LatLng toPoint() {
         return new LatLng(lat,lon);

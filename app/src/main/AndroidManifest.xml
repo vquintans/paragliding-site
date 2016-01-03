@@ -43,6 +43,7 @@
             android:label="@string/title_activity_get_sites" >
         </activity>
         <activity
+            android:windowSoftInputMode="stateHidden"
             android:name=".Settings"
             android:label="@string/title_activity_settings" >
         </activity>

@@ -172,6 +172,36 @@ public class MapsActivity extends ActionBarActivity implements OnMapReadyCallbac
             icon = R.drawable.visited;
         }
 
+        if(Util.getBoolean(this, "nowind", true)) {
+
+        } else {
+            /*
+            if(Util.getBoolean(this, "n", true) && !t.n) return;
+            if(Util.getBoolean(this, "e", true) && !t.e) return;
+            if(Util.getBoolean(this, "w", true) && !t.w) return;
+            if(Util.getBoolean(this, "s", true) && !t.s) return;
+
+            if(Util.getBoolean(this, "ne", true) && !t.ne) return;
+            if(Util.getBoolean(this, "nw", true) && !t.nw) return;
+            if(Util.getBoolean(this, "se", true) && !t.se) return;
+            if(Util.getBoolean(this, "sw", true) && !t.sw) return;
+            */
+
+            boolean show = false;
+
+            if(Util.getBoolean(this, "n", true) && t.n) show = true;
+            if(Util.getBoolean(this, "e", true) && t.e) show = true;
+            if(Util.getBoolean(this, "w", true) && t.w) show = true;
+            if(Util.getBoolean(this, "s", true) && t.s) show = true;
+
+            if(Util.getBoolean(this, "ne", true) && t.ne) show = true;
+            if(Util.getBoolean(this, "nw", true) && t.nw) show = true;
+            if(Util.getBoolean(this, "se", true) && t.se) show = true;
+            if(Util.getBoolean(this, "sw", true) && t.sw) show = true;
+
+            if(!show) return;
+        }
+
         marker.icon(BitmapDescriptorFactory.fromResource(icon));
 
         // adding marker
@@ -256,6 +286,20 @@ public class MapsActivity extends ActionBarActivity implements OnMapReadyCallbac
                 t.lon = p.getDouble("lon");
                 t.flights = p.getInt("flights");
                 t.id = p.getString("id");
+
+                String wind = p.getString("wind");
+                String[] winds = wind.split(",");
+                for(String w : winds) {
+                    if(w.equals("N")) t.n = true;
+                    if(w.equals("E")) t.e = true;
+                    if(w.equals("W")) t.w = true;
+                    if(w.equals("S")) t.s = true;
+
+                    if(w.equals("NE")) t.ne = true;
+                    if(w.equals("NW")) t.nw = true;
+                    if(w.equals("SE")) t.se = true;
+                    if(w.equals("SW")) t.sw = true;
+                }
 
                 sites[i] = t;
             }

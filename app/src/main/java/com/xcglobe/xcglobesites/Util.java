@@ -56,10 +56,14 @@ public class Util {
         return sharedPref.getString(key, "");
     }
 
-    public static boolean getBoolean(Context c, String key) {
+    public static boolean getBoolean(Context c, String key, boolean val) {
         SharedPreferences sharedPref = c.getSharedPreferences(prefkey, Context.MODE_PRIVATE);
-        return sharedPref.getBoolean(key, false);
+        return sharedPref.getBoolean(key, val);
     }
+
+    public static boolean getBoolean(Context c, String key) { {
+        return getBoolean(c, key, false);
+    }}
 
     public static int getInt(Context c, String key, int i) {
         SharedPreferences sharedPref = c.getSharedPreferences(prefkey, Context.MODE_PRIVATE);
@@ -142,6 +146,6 @@ public class Util {
 
     public static File getSitesFile(Context context) {
         File cacheDir = context.getCacheDir();
-        return new File(cacheDir, "sites.json");
+        return new File(cacheDir, "sites_wind.json");
     }
 }

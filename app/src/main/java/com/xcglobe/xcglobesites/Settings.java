@@ -45,6 +45,59 @@ public class Settings extends AppCompatActivity {
             }
         });
 
+        CheckBox n = (CheckBox) findViewById(R.id.n);
+        n.setChecked(Util.getBoolean(this, "n", true));
+        n.setTag("n");
+
+        CheckBox e = (CheckBox) findViewById(R.id.e);
+        e.setChecked(Util.getBoolean(this, "e", true));
+        e.setTag("e");
+
+        CheckBox w = (CheckBox) findViewById(R.id.w);
+        w.setChecked(Util.getBoolean(this, "w", true));
+        w.setTag("w");
+
+        CheckBox s = (CheckBox) findViewById(R.id.s);
+        s.setChecked(Util.getBoolean(this, "s", true));
+        s.setTag("s");
+
+        CheckBox ne = (CheckBox) findViewById(R.id.ne);
+        ne.setChecked(Util.getBoolean(this, "ne", true));
+        ne.setTag("ne");
+
+        CheckBox nw = (CheckBox) findViewById(R.id.nw);
+        nw.setChecked(Util.getBoolean(this, "nw", true));
+        nw.setTag("nw");
+
+        CheckBox se = (CheckBox) findViewById(R.id.se);
+        se.setChecked(Util.getBoolean(this, "se", true));
+        se.setTag("se");
+
+        CheckBox sw = (CheckBox) findViewById(R.id.sw);
+        sw.setChecked(Util.getBoolean(this, "sw", true));
+        sw.setTag("sw");
+
+        CheckBox nowind = (CheckBox) findViewById(R.id.wind);
+        nowind.setChecked(Util.getBoolean(this, "nowind", true));
+        nowind.setTag("nowind");
+
+
+        CheckBox.OnCheckedChangeListener cb_wind = new CompoundButton.OnCheckedChangeListener() {
+            @Override
+            public void onCheckedChanged(CompoundButton buttonView, boolean isChecked) {
+                Util.save(getApplicationContext(), buttonView.getTag().toString(), isChecked);
+            }
+        };
+        n.setOnCheckedChangeListener(cb_wind);
+        e.setOnCheckedChangeListener(cb_wind);
+        w.setOnCheckedChangeListener(cb_wind);
+        s.setOnCheckedChangeListener(cb_wind);
+        ne.setOnCheckedChangeListener(cb_wind);
+        nw.setOnCheckedChangeListener(cb_wind);
+        se.setOnCheckedChangeListener(cb_wind);
+        sw.setOnCheckedChangeListener(cb_wind);
+        nowind.setOnCheckedChangeListener(cb_wind);
+
         EditText numpopular = (EditText) findViewById(R.id.numpopular);
         numpopular.setText(Util.getInt(this, "popular", 50) + "");
         numpopular.addTextChangedListener(new TextWatcher() {

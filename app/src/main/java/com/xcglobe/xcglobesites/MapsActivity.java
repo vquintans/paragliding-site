@@ -8,7 +8,6 @@ import android.graphics.Color;
 import android.location.Location;
 import android.location.LocationManager;
 import android.net.Uri;
-import android.os.AsyncTask;
 import android.os.Bundle;
 import android.support.v7.app.ActionBarActivity;
 import android.util.Log;
@@ -32,7 +31,7 @@ import com.google.android.gms.maps.model.PolygonOptions;
 import org.json.JSONArray;
 import org.json.JSONObject;
 
-import java.io.InputStream;
+import java.io.File;
 import java.util.HashMap;
 
 public class MapsActivity extends ActionBarActivity implements OnMapReadyCallback {
@@ -41,6 +40,7 @@ public class MapsActivity extends ActionBarActivity implements OnMapReadyCallbac
     private JSONArray data;
     private Takeoff[] sites;
     private HashMap<String, Takeoff> markers;
+    private String uid;
 
     private static float minZoom = 9.0f;
 
@@ -52,6 +52,11 @@ public class MapsActivity extends ActionBarActivity implements OnMapReadyCallbac
         SupportMapFragment mapFragment = (SupportMapFragment) getSupportFragmentManager()
                 .findFragmentById(R.id.map);
         mapFragment.getMapAsync(this);
+
+        uid = Util.getString(this, "uid");
+        if(!uid.isEmpty()) {
+            Util.getSites(this, uid);
+        }
 
         markers = new HashMap<>();
     }
@@ -91,6 +96,9 @@ public class MapsActivity extends ActionBarActivity implements OnMapReadyCallbac
             case R.id.item2:
                 startActivity(new Intent(this, GetSites.class));
                 break;
+            case R.id.item3:
+                startActivity(new Intent(this, Settings.class));
+                break;
         }
         return super.onOptionsItemSelected(item);
     }
@@ -126,7 +134,7 @@ public class MapsActivity extends ActionBarActivity implements OnMapReadyCallbac
             }
         });
 
-        //zoomToMyPos();
+        zoomToMyPos();
     }
 
     private void drawPointsInBounds() {
@@ -154,8 +162,11 @@ public class MapsActivity extends ActionBarActivity implements OnMapReadyCallbac
 
         // Changing marker icon
         int icon = R.drawable.dot;
-        if(t.flights < 100) {
+        if(t.flights < Util.getInt(this,"popular",50)) {
             icon = R.drawable.small;
+        }
+        if(t.flights < Util.getInt(this, "minflights", 1)) {
+            return;
         }
         if(Util.get(this,t.id) > 0) {
             icon = R.drawable.visited;
@@ -210,6 +221,18 @@ public class MapsActivity extends ActionBarActivity implements OnMapReadyCallbac
         drawAirspace();
     }
 
+    public JSONArray getTakeoffs() {
+        File f = Util.getSitesFile(this);
+        if(f.exists()) {
+            Log.i("XCG", "Loaded sites from cache");
+            return Util.loadJSONFromFile(this, f);
+        } else {
+            Log.i("XCG","Loaded sites from assets");
+            return Util.loadJSONFromAsset(this, "xcg.json");
+        }
+    }
+
+    /*
     class LoadDataTask extends AsyncTask<Void, Void, Void> {
 
         @Override
@@ -218,12 +241,13 @@ public class MapsActivity extends ActionBarActivity implements OnMapReadyCallbac
             return null;
         }
     }
+    */
 
     private void drawTakeoffs() {
         try {
-            data = loadJSONFromAsset("xcg.json");
+            data = getTakeoffs();
             sites = new Takeoff[data.length()];
-            for(int i = 0; i<data.length();i++) {
+            for (int i = 0; i < data.length(); i++) {
                 JSONObject p = data.getJSONObject(i);
 
                 Takeoff t = new Takeoff();
@@ -236,20 +260,22 @@ public class MapsActivity extends ActionBarActivity implements OnMapReadyCallbac
                 sites[i] = t;
             }
         } catch (Exception e) {
-            Log.e("XCGlobe","data",e);
+            Log.e("XCGlobe", "data", e);
         }
     }
 
     private void drawAirspace() {
-        try {
-            JSONArray a = loadJSONFromAsset("airspace.json");
-            for(int i = 0; i<a.length();i++) {
-                JSONObject p = a.getJSONObject(i);
+        if(Util.getBoolean(this, "showairspace")) {
+            try {
+                JSONArray a = Util.loadJSONFromAsset(this, "airspace.json");
+                for (int i = 0; i < a.length(); i++) {
+                    JSONObject p = a.getJSONObject(i);
 
-                addPolygon(p.getJSONArray("points"),p.getInt("alt"));
+                    addPolygon(p.getJSONArray("points"), p.getInt("alt"));
+                }
+            } catch (Exception e) {
+                Log.e("XCGlobe", "airspace", e);
             }
-        } catch (Exception e) {
-            Log.e("XCGlobe","airspace",e);
         }
     }
 
@@ -274,21 +300,7 @@ public class MapsActivity extends ActionBarActivity implements OnMapReadyCallbac
         Polygon polygon = mMap.addPolygon(opts);
     }
 
-    private JSONArray loadJSONFromAsset(String filename) {
-        JSONArray json = new JSONArray();;
-        try {
-            InputStream is = getAssets().open(filename);
-            int size = is.available();
-            byte[] buffer = new byte[size];
-            is.read(buffer);
-            is.close();
-            String str = new String(buffer, "UTF-8");
-            json = new JSONArray(str);
-        } catch (Exception ex) {
-            Log.e("XCGlobe", "loadjson", ex);
-        }
-        return json;
-    }
+
 
     private static final CharSequence[] MAP_TYPE_ITEMS =
             {"Road Map", "Hybrid", "Satellite", "Terrain"};

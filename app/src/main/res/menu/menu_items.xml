@@ -6,4 +6,7 @@
 
     <item android:id="@+id/item2"
         android:title="Sync with XCGlobe" />
+
+    <item android:id="@+id/item3"
+        android:title="Settings" />
 </menu>

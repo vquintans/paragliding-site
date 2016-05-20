@@ -146,6 +146,6 @@ public class Util {
 
     public static File getSitesFile(Context context) {
         File cacheDir = context.getCacheDir();
-        return new File(cacheDir, "sites_wind.json");
+        return new File(cacheDir, "sites_avg.json");
     }
 }

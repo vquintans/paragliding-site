@@ -15,6 +15,12 @@ import android.view.Menu;
 import android.view.MenuInflater;
 import android.view.MenuItem;
 
+import com.android.volley.Request;
+import com.android.volley.RequestQueue;
+import com.android.volley.Response;
+import com.android.volley.VolleyError;
+import com.android.volley.toolbox.StringRequest;
+import com.android.volley.toolbox.Volley;
 import com.google.android.gms.maps.CameraUpdateFactory;
 import com.google.android.gms.maps.GoogleMap;
 import com.google.android.gms.maps.OnMapReadyCallback;
@@ -36,13 +42,14 @@ import java.util.HashMap;
 
 public class MapsActivity extends ActionBarActivity implements OnMapReadyCallback {
 
+    private static final CharSequence[] MAP_TYPE_ITEMS =
+            {"Road Map", "Hybrid", "Satellite", "Terrain"};
+    private static float minZoom = 9.0f;
     private GoogleMap mMap;
     private JSONArray data;
     private Takeoff[] sites;
     private HashMap<String, Takeoff> markers;
     private String uid;
-
-    private static float minZoom = 9.0f;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -77,6 +84,7 @@ public class MapsActivity extends ActionBarActivity implements OnMapReadyCallbac
             }
             drawAirspace();
             drawPointsInBounds();
+            drawLiveTrack();
         }
     }
 
@@ -129,8 +137,12 @@ public class MapsActivity extends ActionBarActivity implements OnMapReadyCallbac
         mMap.setOnInfoWindowClickListener(new GoogleMap.OnInfoWindowClickListener() {
             @Override
             public void onInfoWindowClick(Marker marker) {
-                Intent browserIntent = new Intent(Intent.ACTION_VIEW, Uri.parse("http://xcglobe.com/olc/index.php/catalog/#sa&flights&" + markers.get(marker.getId()).id + "&&&&site_latest"));
-                startActivity(browserIntent);
+                try {
+                    Intent browserIntent = new Intent(Intent.ACTION_VIEW, Uri.parse("http://xcglobe.com/olc/index.php/catalog/#sa&flights&" + markers.get(marker.getId()).id + "&&&&site_latest"));
+                    startActivity(browserIntent);
+                } catch (Exception e) {
+                    Log.e("XCSites", "Info window click", e);
+                }
             }
         });
 
@@ -142,6 +154,50 @@ public class MapsActivity extends ActionBarActivity implements OnMapReadyCallbac
         if(mMap.getCameraPosition().zoom >= minZoom) {
             fetchData(bounds);
         }
+    }
+
+    private void drawLiveTrack() {
+        if (Util.getBoolean(this, "showlivetrack", true)) {
+            Log.i("LiveTrack", "Fetching...");
+            RequestQueue queue = Volley.newRequestQueue(this);
+            StringRequest stringRequest = new StringRequest(Request.Method.GET, "http://xcglobe.com/olc/index.php/livetrack/get_lives_txt?full=1", new Response.Listener<String>() {
+                @Override
+                public void onResponse(String r) {
+                    Log.i("LiveTrack", "Parsing...");
+                    try {
+                        String response = new String(r.getBytes("ISO-8859-1"), "UTF-8");
+                        String[] lines = response.split("\n");
+                        for (String line : lines) {
+                            String[] tokens = line.split("#");
+                            if (tokens.length > 8) {
+                                String pilot = tokens[8];
+                                double lat = new Double(tokens[2]);
+                                double lon = new Double(tokens[3]);
+                                drawPilot(new LatLng(lat, lon), pilot);
+                            }
+                        }
+                    } catch (Exception e) {
+                        Log.e("Paragliding sites", "Live tracking", e);
+                    }
+                }
+            }, new Response.ErrorListener() {
+                @Override
+                public void onErrorResponse(VolleyError error) {
+                    Log.e("LiveTrack", "FetchError", error);
+                }
+            });
+            queue.add(stringRequest);
+        } else {
+            Log.e("LiveTrack", "disabled");
+        }
+    }
+
+    private void drawPilot(LatLng pos, String pilot) {
+        MarkerOptions marker = new MarkerOptions().position(pos);
+        marker.icon(BitmapDescriptorFactory.fromResource(R.drawable.livetrack));
+
+        Marker m = mMap.addMarker(marker);
+        m.setTitle(pilot);
     }
 
     private void fetchData(LatLngBounds bounds) {
@@ -170,7 +226,18 @@ public class MapsActivity extends ActionBarActivity implements OnMapReadyCallbac
         }
         if(Util.get(this,t.id) > 0) {
             icon = R.drawable.visited;
+            t.visited = true;
         }
+
+        if (Util.getBoolean(this, "showvisited", false) && !t.visited) return;
+        if (Util.getBoolean(this, "hidevisited", false) && t.visited) return;
+
+        int minalt = Util.getInt(this, "minalt", 0);
+        int maxalt = Util.getInt(this, "maxalt", 0);
+        int avg = Util.getInt(this, "avg", 0);
+        if (minalt > 0 && t.alt < minalt) return;
+        if (maxalt > 0 && t.alt > maxalt) return;
+        if (avg > 0 && t.avg < avg) return;
 
         if(Util.getBoolean(this, "nowind", true)) {
 
@@ -249,17 +316,7 @@ public class MapsActivity extends ActionBarActivity implements OnMapReadyCallbac
         //new LoadDataTask().execute();
         drawTakeoffs();
         drawAirspace();
-    }
-
-    public JSONArray getTakeoffs() {
-        File f = Util.getSitesFile(this);
-        if(f.exists()) {
-            Log.i("XCG", "Loaded sites from cache");
-            return Util.loadJSONFromFile(this, f);
-        } else {
-            Log.i("XCG","Loaded sites from assets");
-            return Util.loadJSONFromAsset(this, "xcg.json");
-        }
+        drawLiveTrack();
     }
 
     /*
@@ -272,6 +329,17 @@ public class MapsActivity extends ActionBarActivity implements OnMapReadyCallbac
         }
     }
     */
+
+    public JSONArray getTakeoffs() {
+        File f = Util.getSitesFile(this);
+        if (f.exists()) {
+            Log.i("XCG", "Loaded sites from cache");
+            return Util.loadJSONFromFile(this, f);
+        } else {
+            Log.i("XCG", "Loaded sites from assets");
+            return Util.loadJSONFromAsset(this, "xcg.json");
+        }
+    }
 
     private void drawTakeoffs() {
         try {
@@ -286,6 +354,13 @@ public class MapsActivity extends ActionBarActivity implements OnMapReadyCallbac
                 t.lon = p.getDouble("lon");
                 t.flights = p.getInt("flights");
                 t.id = p.getString("id");
+
+                try {
+                    t.alt = p.getInt("alt");
+                    t.avg = p.getDouble("avg");
+                } catch (Exception e) {
+
+                }
 
                 String wind = p.getString("wind");
                 String[] winds = wind.split(",");
@@ -343,11 +418,6 @@ public class MapsActivity extends ActionBarActivity implements OnMapReadyCallbac
 
         Polygon polygon = mMap.addPolygon(opts);
     }
-
-
-
-    private static final CharSequence[] MAP_TYPE_ITEMS =
-            {"Road Map", "Hybrid", "Satellite", "Terrain"};
 
     private void showMapTypeSelectorDialog() {
         // Prepare the dialog by setting up a Builder.

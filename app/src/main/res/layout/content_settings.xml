@@ -7,9 +7,9 @@
     tools:context="com.xcglobe.xcglobesites.Settings">
 
     <ScrollView
+        android:id="@+id/scrollView2"
         android:layout_width="match_parent"
-        android:layout_height="match_parent"
-        android:id="@+id/scrollView2" >
+        android:layout_height="match_parent">
 
         <LinearLayout
             android:layout_width="match_parent"
@@ -20,85 +20,167 @@
             android:orientation="vertical">
 
             <CheckBox
+                android:id="@+id/showlivetrack"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:text="Show airspace"
-                android:id="@+id/showairspace" />
+                android:text="Show live tracking" />
+
+            <CheckBox
+                android:id="@+id/showairspace"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:text="Show airspace" />
 
             <LinearLayout
-                android:orientation="horizontal"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:layout_marginTop="10dp">
+                android:layout_marginTop="10dp"
+                android:orientation="horizontal">
 
                 <EditText
-                    android:layout_width="68dp"
-                    android:layout_height="wrap_content"
-                    android:inputType="number"
-                    android:ems="10"
                     android:id="@+id/numpopular"
-                    android:text="50"
-                    android:numeric="integer" />
-
-                <TextView
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
-                    android:text="Flights for popular site"
-                    android:id="@+id/textView3" />
-            </LinearLayout>
-
-            <LinearLayout
-                android:orientation="horizontal"
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:layout_marginTop="10dp">
-
-                <EditText
                     android:layout_width="68dp"
                     android:layout_height="wrap_content"
-                    android:inputType="number"
                     android:ems="10"
-                    android:id="@+id/minflghts"
-                    android:text="1"
-                    android:numeric="integer" />
+                    android:inputType="number"
+                    android:numeric="integer"
+                    android:text="50" />
 
                 <TextView
+                    android:id="@+id/textView3"
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
-                    android:text="Minimum flights"
-                    android:id="@+id/textView4" />
+                    android:text="Flights for popular site" />
             </LinearLayout>
 
             <LinearLayout
-                android:orientation="horizontal"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:layout_marginTop="10dp">
+                android:layout_marginTop="10dp"
+                android:orientation="horizontal">
+
+                <EditText
+                    android:id="@+id/minflghts"
+                    android:layout_width="68dp"
+                    android:layout_height="wrap_content"
+                    android:ems="10"
+                    android:inputType="number"
+                    android:numeric="integer"
+                    android:text="1" />
+
+                <TextView
+                    android:id="@+id/textView4"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:text="Minimum flights" />
+            </LinearLayout>
+
+            <LinearLayout
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="10dp"
+                android:orientation="horizontal">
+
+                <EditText
+                    android:id="@+id/alt"
+                    android:layout_width="68dp"
+                    android:layout_height="wrap_content"
+                    android:ems="10"
+                    android:inputType="number"
+                    android:numeric="integer" />
+
+                <TextView
+                    android:id="@+id/textView5"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:text="Min altitude" />
+
+                <EditText
+                    android:id="@+id/altmax"
+                    android:layout_width="68dp"
+                    android:layout_height="wrap_content"
+                    android:ems="10"
+                    android:inputType="number"
+                    android:numeric="integer" />
+
+                <TextView
+                    android:id="@+id/textView6"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:text="Max altitude" />
+            </LinearLayout>
+
+            <LinearLayout
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="10dp"
+                android:orientation="horizontal">
+
+                <EditText
+                    android:id="@+id/avg"
+                    android:layout_width="68dp"
+                    android:layout_height="wrap_content"
+                    android:ems="10"
+                    android:inputType="number"
+                    android:numeric="integer" />
+
+                <TextView
+                    android:id="@+id/textView7"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:text="km min avg flight" />
+            </LinearLayout>
+
+            <LinearLayout
+                android:layout_width="match_parent"
+                android:layout_height="match_parent"
+                android:orientation="horizontal">
+
+                <CheckBox
+                    android:id="@+id/hidevisited"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:text="Hide visited" />
+
+                <CheckBox
+                    android:id="@+id/showvisited"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_gravity="center_horizontal"
+                    android:text="Show visited" />
+
+            </LinearLayout>
+
+            <LinearLayout
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="10dp"
+                android:orientation="horizontal">
 
                 <Button
+                    android:id="@+id/download"
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
-                    android:text="Download sites"
-                    android:id="@+id/download" />
+                    android:text="Download sites" />
 
                 <TextView
+                    android:id="@+id/modified"
                     android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
-                    android:id="@+id/modified" />
+                    android:layout_height="wrap_content" />
             </LinearLayout>
 
             <ProgressBar
+                android:id="@+id/progressBar"
                 style="?android:attr/progressBarStyleHorizontal"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:id="@+id/progressBar"
                 android:layout_marginBottom="10dp" />
 
             <TextView
+                android:id="@+id/tv_wind"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:text="Wind"
-                android:id="@+id/tv_wind" />
+                android:text="Wind" />
 
             <TableLayout
                 android:layout_width="match_parent"
@@ -111,31 +193,31 @@
                     android:layout_height="match_parent">
 
                     <CheckBox
-                        android:layout_width="wrap_content"
-                        android:layout_height="wrap_content"
-                        android:text="NW"
                         android:id="@+id/nw"
-                        android:layout_row="0"
-                        android:layout_column="0"
-                        android:layout_weight="1" />
-
-                    <CheckBox
                         android:layout_width="wrap_content"
                         android:layout_height="wrap_content"
-                        android:text="N"
+                        android:layout_column="0"
+                        android:layout_row="0"
+                        android:layout_weight="1"
+                        android:text="NW" />
+
+                    <CheckBox
                         android:id="@+id/n"
-                        android:layout_row="0"
-                        android:layout_column="1"
-                        android:layout_weight="1" />
-
-                    <CheckBox
                         android:layout_width="wrap_content"
                         android:layout_height="wrap_content"
-                        android:text="NE"
+                        android:layout_column="1"
+                        android:layout_row="0"
+                        android:layout_weight="1"
+                        android:text="N" />
+
+                    <CheckBox
                         android:id="@+id/ne"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:layout_column="2"
                         android:layout_row="0"
-                        android:layout_column="2"
-                        android:layout_weight="1" />
+                        android:layout_weight="1"
+                        android:text="NE" />
                 </TableRow>
 
                 <TableRow
@@ -143,31 +225,31 @@
                     android:layout_height="match_parent">
 
                     <CheckBox
-                        android:layout_width="wrap_content"
-                        android:layout_height="wrap_content"
-                        android:text="W"
                         android:id="@+id/w"
-                        android:layout_row="1"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
                         android:layout_column="0"
-                        android:layout_weight="1" />
+                        android:layout_row="1"
+                        android:layout_weight="1"
+                        android:text="W" />
 
                     <CheckBox
-                        android:layout_width="wrap_content"
-                        android:layout_height="wrap_content"
-                        android:text="No data"
                         android:id="@+id/wind"
-                        android:layout_row="1"
-                        android:layout_column="1"
-                        android:layout_weight="1" />
-
-                    <CheckBox
                         android:layout_width="wrap_content"
                         android:layout_height="wrap_content"
-                        android:text="E"
-                        android:id="@+id/e"
+                        android:layout_column="1"
                         android:layout_row="1"
+                        android:layout_weight="1"
+                        android:text="No data" />
+
+                    <CheckBox
+                        android:id="@+id/e"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
                         android:layout_column="2"
-                        android:layout_weight="1" />
+                        android:layout_row="1"
+                        android:layout_weight="1"
+                        android:text="E" />
                 </TableRow>
 
                 <TableRow
@@ -175,42 +257,43 @@
                     android:layout_height="match_parent">
 
                     <CheckBox
-                        android:layout_width="wrap_content"
-                        android:layout_height="wrap_content"
-                        android:text="SW"
                         android:id="@+id/sw"
-                        android:layout_row="2"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
                         android:layout_column="0"
-                        android:layout_weight="1" />
+                        android:layout_row="2"
+                        android:layout_weight="1"
+                        android:text="SW" />
 
                     <CheckBox
-                        android:layout_width="wrap_content"
-                        android:layout_height="wrap_content"
-                        android:text="S"
                         android:id="@+id/s"
-                        android:layout_row="2"
-                        android:layout_column="1"
-                        android:layout_weight="1" />
-
-                    <CheckBox
                         android:layout_width="wrap_content"
                         android:layout_height="wrap_content"
-                        android:text="SE"
-                        android:id="@+id/se"
+                        android:layout_column="1"
                         android:layout_row="2"
+                        android:layout_weight="1"
+                        android:text="S" />
+
+                    <CheckBox
+                        android:id="@+id/se"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
                         android:layout_column="2"
-                        android:layout_weight="1" />
+                        android:layout_row="2"
+                        android:layout_weight="1"
+                        android:text="SE" />
                 </TableRow>
 
             </TableLayout>
 
             <Button
+                android:id="@+id/close"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:text="Close"
-                android:id="@+id/close"
                 android:layout_gravity="center_horizontal"
-                android:layout_marginTop="20dp" />
+                android:layout_marginTop="20dp"
+                android:text="Close" />
+
         </LinearLayout>
     </ScrollView>
 </RelativeLayout>

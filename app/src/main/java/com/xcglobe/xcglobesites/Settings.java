@@ -34,14 +34,49 @@ public class Settings extends AppCompatActivity {
         bar = (ProgressBar) findViewById(R.id.progressBar);
         modified = (TextView) findViewById(R.id.modified);
 
-        CheckBox airspace = (CheckBox) findViewById(R.id.showairspace);
+        CheckBox
+                airspace = (CheckBox) findViewById(R.id.showairspace),
+                livetrack = (CheckBox) findViewById(R.id.showlivetrack),
+                showvisited = (CheckBox) findViewById(R.id.showvisited),
+                hidevisited = (CheckBox) findViewById(R.id.hidevisited);
+
         boolean showairs = Util.getBoolean(this, "showairspace");
         airspace.setChecked(showairs);
+
+        boolean showlivetrack = Util.getBoolean(this, "showlivetrack", true);
+        livetrack.setChecked(showlivetrack);
+
+        boolean hidevis = Util.getBoolean(this, "hidevisited", true);
+        hidevisited.setChecked(hidevis);
+
+        boolean showvis = Util.getBoolean(this, "showvisited", true);
+        showvisited.setChecked(showvis);
 
         airspace.setOnCheckedChangeListener(new CompoundButton.OnCheckedChangeListener() {
             @Override
             public void onCheckedChanged(CompoundButton buttonView, boolean isChecked) {
                 Util.save(getApplicationContext(), "showairspace", isChecked);
+            }
+        });
+
+        livetrack.setOnCheckedChangeListener(new CompoundButton.OnCheckedChangeListener() {
+            @Override
+            public void onCheckedChanged(CompoundButton buttonView, boolean isChecked) {
+                Util.save(getApplicationContext(), "showlivetrack", isChecked);
+            }
+        });
+
+        hidevisited.setOnCheckedChangeListener(new CompoundButton.OnCheckedChangeListener() {
+            @Override
+            public void onCheckedChanged(CompoundButton buttonView, boolean isChecked) {
+                Util.save(getApplicationContext(), "hidevisited", isChecked);
+            }
+        });
+
+        showvisited.setOnCheckedChangeListener(new CompoundButton.OnCheckedChangeListener() {
+            @Override
+            public void onCheckedChanged(CompoundButton buttonView, boolean isChecked) {
+                Util.save(getApplicationContext(), "showvisited", isChecked);
             }
         });
 
@@ -123,7 +158,6 @@ public class Settings extends AppCompatActivity {
         EditText minflights = (EditText) findViewById(R.id.minflghts);
         minflights.setText(Util.getInt(this, "minflights", 1) + "");
         minflights.addTextChangedListener(new TextWatcher() {
-
             @Override
             public void beforeTextChanged(CharSequence s, int start, int count, int after) {
 
@@ -135,6 +169,75 @@ public class Settings extends AppCompatActivity {
                     Util.save(getApplicationContext(), "minflights", new Integer(s.toString()));
                 } catch (Exception e) {
                     Log.e("Settings", "edit min flights", e);
+                }
+            }
+
+            @Override
+            public void afterTextChanged(Editable s) {
+
+            }
+        });
+
+        EditText minalt = (EditText) findViewById(R.id.alt);
+        minalt.setText(Util.getInt(this, "minalt", 0) + "");
+        minalt.addTextChangedListener(new TextWatcher() {
+            @Override
+            public void beforeTextChanged(CharSequence s, int start, int count, int after) {
+
+            }
+
+            @Override
+            public void onTextChanged(CharSequence s, int start, int before, int count) {
+                try {
+                    Util.save(getApplicationContext(), "minalt", new Integer(s.toString()));
+                } catch (Exception e) {
+                    Log.e("Settings", "edit min alt", e);
+                }
+            }
+
+            @Override
+            public void afterTextChanged(Editable s) {
+
+            }
+        });
+
+        EditText maxalt = (EditText) findViewById(R.id.altmax);
+        maxalt.setText(Util.getInt(this, "maxalt", 0) + "");
+        maxalt.addTextChangedListener(new TextWatcher() {
+            @Override
+            public void beforeTextChanged(CharSequence s, int start, int count, int after) {
+
+            }
+
+            @Override
+            public void onTextChanged(CharSequence s, int start, int before, int count) {
+                try {
+                    Util.save(getApplicationContext(), "maxalt", new Integer(s.toString()));
+                } catch (Exception e) {
+                    Log.e("Settings", "edit max alt", e);
+                }
+            }
+
+            @Override
+            public void afterTextChanged(Editable s) {
+
+            }
+        });
+
+        EditText avg = (EditText) findViewById(R.id.avg);
+        avg.setText(Util.getInt(this, "avg", 0) + "");
+        avg.addTextChangedListener(new TextWatcher() {
+            @Override
+            public void beforeTextChanged(CharSequence s, int start, int count, int after) {
+
+            }
+
+            @Override
+            public void onTextChanged(CharSequence s, int start, int before, int count) {
+                try {
+                    Util.save(getApplicationContext(), "avg", new Integer(s.toString()));
+                } catch (Exception e) {
+                    Log.e("Settings", "edit avg", e);
                 }
             }
 

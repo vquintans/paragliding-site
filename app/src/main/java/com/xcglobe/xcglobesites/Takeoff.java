@@ -7,8 +7,10 @@ public class Takeoff {
     public double lat;
     public double lon;
     public String name;
-    public int flights;
+    public int flights, alt;
+    public double avg;
     boolean drawn = false;
+    boolean visited = false;
 
     boolean n,e,w,s,ne,nw,se,sw;
 

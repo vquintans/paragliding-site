@@ -33,12 +33,18 @@ import com.google.android.gms.maps.model.Marker;
 import com.google.android.gms.maps.model.MarkerOptions;
 import com.google.android.gms.maps.model.Polygon;
 import com.google.android.gms.maps.model.PolygonOptions;
+import com.google.android.gms.maps.model.Polyline;
+import com.google.android.gms.maps.model.PolylineOptions;
 
 import org.json.JSONArray;
 import org.json.JSONObject;
 
 import java.io.File;
+import java.text.SimpleDateFormat;
+import java.util.ArrayList;
+import java.util.Date;
 import java.util.HashMap;
+import java.util.Map;
 
 public class MapsActivity extends ActionBarActivity implements OnMapReadyCallback {
 
@@ -50,6 +56,7 @@ public class MapsActivity extends ActionBarActivity implements OnMapReadyCallbac
     private Takeoff[] sites;
     private HashMap<String, Takeoff> markers;
     private String uid;
+    private HashMap<String, Pilot> livetrack;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -66,6 +73,7 @@ public class MapsActivity extends ActionBarActivity implements OnMapReadyCallbac
         }
 
         markers = new HashMap<>();
+        livetrack = new HashMap<>();
     }
 
     @Override
@@ -145,8 +153,37 @@ public class MapsActivity extends ActionBarActivity implements OnMapReadyCallbac
                 }
             }
         });
+        mMap.setOnMarkerClickListener(new GoogleMap.OnMarkerClickListener() {
+            @Override
+            public boolean onMarkerClick(Marker marker) {
+                for (Map.Entry<String, Pilot> entry : livetrack.entrySet()) {
+                    Pilot p = entry.getValue();
+                    if (p.line != null) {
+                        p.line.remove();
+                    }
+                }
+
+                if (livetrack.containsKey(marker.getId())) {
+                    drawTrack(livetrack.get(marker.getId()));
+                }
+                return false;
+            }
+        });
 
         zoomToMyPos();
+    }
+
+    private void drawTrack(Pilot pilot) {
+        if (pilot.track != null) {
+            PolylineOptions opts = new PolylineOptions().width(5).color(Color.RED);
+
+            for (LatLng p : pilot.track) {
+                opts.add(p);
+            }
+
+            Polyline line = mMap.addPolyline(opts);
+            pilot.line = line;
+        }
     }
 
     private void drawPointsInBounds() {
@@ -157,6 +194,7 @@ public class MapsActivity extends ActionBarActivity implements OnMapReadyCallbac
     }
 
     private void drawLiveTrack() {
+        livetrack.clear();
         if (Util.getBoolean(this, "showlivetrack", true)) {
             Log.i("LiveTrack", "Fetching...");
             RequestQueue queue = Volley.newRequestQueue(this);
@@ -171,9 +209,32 @@ public class MapsActivity extends ActionBarActivity implements OnMapReadyCallbac
                             String[] tokens = line.split("#");
                             if (tokens.length > 8) {
                                 String pilot = tokens[8];
+                                Pilot p = new Pilot(pilot);
+                                p.id = new Integer(tokens[0]);
+                                p.timestamp = new Integer(tokens[1]);
                                 double lat = new Double(tokens[2]);
                                 double lon = new Double(tokens[3]);
-                                drawPilot(new LatLng(lat, lon), pilot);
+                                p.loc = new LatLng(lat, lon);
+                                p.speed = new Double(tokens[5]);
+                                p.alt = new Integer(tokens[4]);
+                                try {
+                                    String[] track = tokens[9].split(" ");
+                                    String tmp = null;
+                                    p.track = new ArrayList();
+                                    for (String t : track) {
+                                        if (tmp == null) {
+                                            tmp = t;
+                                        } else {
+                                            double tlat = new Double(tmp);
+                                            double tlon = new Double(t);
+                                            tmp = null;
+                                            p.track.add(new LatLng(tlat, tlon));
+                                        }
+                                    }
+                                } catch (Exception e) {
+                                    Log.e("Paragliding sites", "track parsing", e);
+                                }
+                                drawPilot(p);
                             }
                         }
                     } catch (Exception e) {
@@ -192,12 +253,20 @@ public class MapsActivity extends ActionBarActivity implements OnMapReadyCallbac
         }
     }
 
-    private void drawPilot(LatLng pos, String pilot) {
-        MarkerOptions marker = new MarkerOptions().position(pos);
+    private void drawPilot(Pilot p) {
+        MarkerOptions marker = new MarkerOptions().position(p.loc);
         marker.icon(BitmapDescriptorFactory.fromResource(R.drawable.livetrack));
 
+        Date time = new java.util.Date((long) p.timestamp * 1000);
+        SimpleDateFormat formatter = new SimpleDateFormat("dd.MM HH:mm");
+        String format = formatter.format(time);
+
         Marker m = mMap.addMarker(marker);
-        m.setTitle(pilot);
+        m.setTitle(p.name);
+        m.setSnippet(format + ", " + p.alt + "m, " + p.speed + " km/h");
+        p.marker = m;
+
+        livetrack.put(m.getId(), p);
     }
 
     private void fetchData(LatLngBounds bounds) {

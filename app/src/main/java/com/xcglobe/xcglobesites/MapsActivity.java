@@ -255,7 +255,11 @@ public class MapsActivity extends ActionBarActivity implements OnMapReadyCallbac
 
     private void drawPilot(Pilot p) {
         MarkerOptions marker = new MarkerOptions().position(p.loc);
-        marker.icon(BitmapDescriptorFactory.fromResource(R.drawable.livetrack));
+        if (p.getAge() > 2 * 3600) {
+            marker.icon(BitmapDescriptorFactory.fromResource(R.drawable.livetrack_inac));
+        } else {
+            marker.icon(BitmapDescriptorFactory.fromResource(R.drawable.livetrack));
+        }
 
         Date time = new java.util.Date((long) p.timestamp * 1000);
         SimpleDateFormat formatter = new SimpleDateFormat("dd.MM HH:mm");

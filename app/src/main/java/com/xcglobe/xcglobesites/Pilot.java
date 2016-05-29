@@ -23,4 +23,10 @@ public class Pilot {
     public Pilot(String name) {
         this.name = name;
     }
+
+    public long getAge() {
+        long unixTime = System.currentTimeMillis() / 1000L;
+
+        return unixTime - timestamp;
+    }
 }

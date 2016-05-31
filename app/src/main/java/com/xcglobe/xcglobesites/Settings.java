@@ -46,10 +46,10 @@ public class Settings extends AppCompatActivity {
         boolean showlivetrack = Util.getBoolean(this, "showlivetrack", true);
         livetrack.setChecked(showlivetrack);
 
-        boolean hidevis = Util.getBoolean(this, "hidevisited", true);
+        boolean hidevis = Util.getBoolean(this, "hidevisited", false);
         hidevisited.setChecked(hidevis);
 
-        boolean showvis = Util.getBoolean(this, "showvisited", true);
+        boolean showvis = Util.getBoolean(this, "showvisited", false);
         showvisited.setChecked(showvis);
 
         airspace.setOnCheckedChangeListener(new CompoundButton.OnCheckedChangeListener() {

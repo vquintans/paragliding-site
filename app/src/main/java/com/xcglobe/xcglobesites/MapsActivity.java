@@ -91,7 +91,7 @@ public class MapsActivity extends ActionBarActivity implements OnMapReadyCallbac
                 }
             }
             drawAirspace();
-            drawPointsInBounds();
+            drawPointsInBounds(mMap.getCameraPosition().zoom);
             drawLiveTrack();
         }
     }
@@ -136,10 +136,11 @@ public class MapsActivity extends ActionBarActivity implements OnMapReadyCallbac
             @Override
             public void onCameraChange(CameraPosition cameraPosition) {
                 if (cameraPosition.zoom < minZoom) {
-                    mMap.animateCamera(CameraUpdateFactory.zoomTo(minZoom));
+                    //mMap.animateCamera(CameraUpdateFactory.zoomTo(minZoom));
                 } else {
-                    drawPointsInBounds();
+
                 }
+                drawPointsInBounds(cameraPosition.zoom);
             }
         });
         mMap.setOnInfoWindowClickListener(new GoogleMap.OnInfoWindowClickListener() {
@@ -186,21 +187,30 @@ public class MapsActivity extends ActionBarActivity implements OnMapReadyCallbac
         }
     }
 
-    private void drawPointsInBounds() {
+    private void drawPointsInBounds(float zoom) {
         LatLngBounds bounds = mMap.getProjection().getVisibleRegion().latLngBounds;
         if(mMap.getCameraPosition().zoom >= minZoom) {
-            fetchData(bounds);
+            fetchData(bounds, zoom);
         }
     }
 
     private void drawLiveTrack() {
+        HashMap<String, Pilot> livetrack_copy = (HashMap<String, Pilot>) livetrack.clone();
         livetrack.clear();
+        for (Pilot p : livetrack_copy.values()) {
+            drawPilot(p);
+        }
+
         if (Util.getBoolean(this, "showlivetrack", true)) {
             Log.i("LiveTrack", "Fetching...");
             RequestQueue queue = Volley.newRequestQueue(this);
             StringRequest stringRequest = new StringRequest(Request.Method.GET, "http://xcglobe.com/olc/index.php/livetrack/get_lives_txt?full=1", new Response.Listener<String>() {
                 @Override
                 public void onResponse(String r) {
+                    for (Pilot p : livetrack.values()) {
+                        p.marker.remove();
+                    }
+                    livetrack.clear();
                     Log.i("LiveTrack", "Parsing...");
                     try {
                         String response = new String(r.getBytes("ISO-8859-1"), "UTF-8");
@@ -273,13 +283,15 @@ public class MapsActivity extends ActionBarActivity implements OnMapReadyCallbac
         livetrack.put(m.getId(), p);
     }
 
-    private void fetchData(LatLngBounds bounds) {
+    private void fetchData(LatLngBounds bounds, float zoom) {
         //mMap.clear();
         if(sites != null) {
             for (Takeoff t : sites) {
                 if(t != null && !t.drawn) {
                     if (bounds.contains(t.toPoint())) {
-                        addMarker(t);
+                        if ((zoom < minZoom && t.flights > 50) || zoom >= minZoom) {
+                            addMarker(t);
+                        }
                     }
                 }
             }
